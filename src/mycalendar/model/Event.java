@@ -9,18 +9,16 @@ public class Event {
 	private String eventCreater;
 	private Date eventTime;
 	
-	private ArrayList<Account> eventAttendees = new ArrayList<>();
-	
+
 	public Event(){}
 
-	public Event(int eventID, String eventName, String eventCreater, Date eventTime,
-			ArrayList<Account> eventAttendees) {
+	public Event(int eventID, String eventName, String eventCreater, Date eventTime) {
 		super();
 		this.eventID = eventID;
 		this.eventName = eventName;
 		this.eventCreater = eventCreater;
 		this.eventTime = eventTime;
-		this.eventAttendees = eventAttendees;
+		
 	}
 
 	public int getEventID() {
@@ -54,15 +52,4 @@ public class Event {
 	public void setEventTime(Date eventTime) {
 		this.eventTime = eventTime;
 	}
-
-	public ArrayList<Account> getEventAttendees() {
-		return eventAttendees;
-	}
-
-	public void setEventAttendees(ArrayList<Account> eventAttendees) {
-		this.eventAttendees = eventAttendees;
-	};
-	
-	
-	
 }

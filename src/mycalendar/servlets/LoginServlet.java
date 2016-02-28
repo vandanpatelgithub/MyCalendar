@@ -2,6 +2,7 @@ package mycalendar.servlets;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 
 import mycalendar.model.Account;
+import mycalendar.model.Event;
 
 /**
  * Servlet implementation class LoginServlet
@@ -27,16 +29,23 @@ public class LoginServlet extends HttpServlet {
 	private volatile int ACCOUNT_ID_SEQUENCE = 4;
 	
 	private Hashtable<String,String> accountsDatabase = new Hashtable<>();
-
+	private ArrayList<Event> associatedEvents = new ArrayList<>();
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		// TODO Auto-generated method stub
 		super.init(config);
+		Event eventOne = new Event(1, "Cowboy Hat Sale", "Hank", new Date());
+		Event eventTwo = new Event(2, "Whiskey Tasting", "Bobby", new Date());
+		Event eventThree = new Event(3, "Pure Country Music Show", "Dale R. Mercer", new Date());
 		
-		Account accountOne = new Account(1, "andrew", "andrew@gmail.com", "test12");
-		Account accountTwo = new Account(2, "bob", "bobson@gmail.com", "test12");
-		Account accountThree = new Account(3, "chang", "chang@gmail.com", "test12");
+		associatedEvents.add(eventOne);
+		associatedEvents.add(eventTwo);
+		associatedEvents.add(eventThree);
+		
+		Account accountOne = new Account(1, "andrew", "andrew@gmail.com", "test12",associatedEvents);
+		Account accountTwo = new Account(2, "bob", "bobson@gmail.com", "test12",associatedEvents);
+		Account accountThree = new Account(3, "chang", "chang@gmail.com", "test12", associatedEvents);
 		
 		accountsDatabase.put(accountOne.getAccountName(), accountOne.getAccountPassword());
 		accountsDatabase.put(accountTwo.getAccountName(), accountTwo.getAccountPassword());
@@ -48,7 +57,7 @@ public class LoginServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		HttpSession session = request.getSession(true);
+		HttpSession session = request.getSession(false);
 		
 		if(request.getParameter("logout")!=null){
 			session.invalidate();
@@ -102,7 +111,8 @@ public class LoginServlet extends HttpServlet {
 
 	private void authenticateAccount(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		// TODO Auto-generated method stub
-		HttpSession session = request.getSession(true);
+		
+		HttpSession session = request.getSession();
 		
 		if(session.getAttribute("username") != null){
 			response.sendRedirect("events");
@@ -114,7 +124,9 @@ public class LoginServlet extends HttpServlet {
 		String username = request.getParameter("accountName");
 		String password = request.getParameter("accountPassword");
 		
-		if(accountsDatabase.containsKey(username) && accountsDatabase.get(username).equals(password)){
+		
+		
+		if(accountsDatabase.containsKey(username) == true && accountsDatabase.get(username).equals(password)){
 			authenticated = true;
 		}
 		
@@ -123,15 +135,51 @@ public class LoginServlet extends HttpServlet {
 			request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
 		}
 		else{
-			session.setAttribute("username", username);
-			request.changeSessionId();
+			HttpSession newSession = request.getSession();
+			newSession.setAttribute("username", username);
 			response.sendRedirect("events");
 		}
 	}
 
-	private void createAccount(HttpServletRequest request, HttpServletResponse response) {
+	private void createAccount(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		// TODO Auto-generated method stub
+		HttpSession session = request.getSession();
 		
+		if (session.getAttribute("username") != null){
+			System.out.println("I am in the session!");
+			response.sendRedirect("events");
+			return;
+		}
+		
+		String username = request.getParameter("accountUsername");
+		String email = request.getParameter("accountEmail");
+		String password = request.getParameter("accountPassword");
+		
+		if(username.equals("") || email.equals("") || password.equals("")){
+			request.setAttribute("createFailed", true);
+			request.getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
+		}
+		
+		else if(accountsDatabase.containsKey(username)){
+			request.setAttribute("duplicateName", true);
+			request.getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);	
+		}
+		
+		else {
+		int id;
+		synchronized(this){
+			id = this.ACCOUNT_ID_SEQUENCE++;
+		}
+		
+		ArrayList<Event> yourEvents = new ArrayList<>();
+		Account account = new Account(id, username, email, password, yourEvents);
+		accountsDatabase.put(account.getAccountName(), account.getAccountPassword());
+		
+		HttpSession newSession = request.getSession();
+		newSession.setAttribute("username", username);
+		response.sendRedirect("events");
+
+		}
 	}
 
 	private void showLoginForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -140,8 +188,10 @@ public class LoginServlet extends HttpServlet {
 		request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
 	}
 
-	private void showAccountCreationForm(HttpServletRequest request, HttpServletResponse response) {
+	private void showAccountCreationForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		request.getRequestDispatcher("/WEB-INF/register.jsp")
+        .forward(request, response);
 		
 	}
 

@@ -1,5 +1,7 @@
 package mycalendar.model;
 
+import java.util.ArrayList;
+
 public class Account {
 
 	private int accountID;
@@ -7,14 +9,25 @@ public class Account {
 	private String accountEmail;
 	private String accountPassword;
 	
+	private ArrayList<Event> associatedEvents = new ArrayList<>();
+	
 	public Account() {}
 
-	public Account(Integer accountID, String accountName, String accountEmail, String accountPassword) {
+	public Account(Integer accountID, String accountName, String accountEmail, String accountPassword, ArrayList<Event> events) {
 		super();
 		this.accountID = accountID;
 		this.accountName = accountName;
 		this.accountEmail = accountEmail;
 		this.accountPassword = accountPassword;
+		this.associatedEvents = events;
+	}
+
+	public ArrayList<Event> getAssociatedEvents() {
+		return associatedEvents;
+	}
+
+	public void setAssociatedEvents(ArrayList<Event> associatedEvents) {
+		this.associatedEvents = associatedEvents;
 	}
 
 	public Integer getAccountID() {
