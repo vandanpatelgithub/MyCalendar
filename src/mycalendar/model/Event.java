@@ -7,17 +7,19 @@ public class Event {
 	private int eventID;
 	private String eventName;
 	private String eventCreater;
-	private Date eventTime;
+	private String eventTime;
+	private String location;
 	
 
 	public Event(){}
 
-	public Event(int eventID, String eventName, String eventCreater, Date eventTime) {
+	public Event(int eventID, String eventName, String eventCreater, String eventTime, String location) {
 		super();
 		this.eventID = eventID;
 		this.eventName = eventName;
 		this.eventCreater = eventCreater;
 		this.eventTime = eventTime;
+		this.location = location;
 		
 	}
 
@@ -27,6 +29,14 @@ public class Event {
 
 	public void setEventID(int eventID) {
 		this.eventID = eventID;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 	public String getEventName() {
@@ -45,11 +55,11 @@ public class Event {
 		this.eventCreater = eventCreater;
 	}
 
-	public Date getEventTime() {
+	public String getEventTime() {
 		return eventTime;
 	}
 
-	public void setEventTime(Date eventTime) {
+	public void setEventTime(String eventTime) {
 		this.eventTime = eventTime;
 	}
 }

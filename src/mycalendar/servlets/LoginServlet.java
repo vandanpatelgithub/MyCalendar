@@ -28,16 +28,17 @@ public class LoginServlet extends HttpServlet {
 	
 	private volatile int ACCOUNT_ID_SEQUENCE = 4;
 	
-	private Hashtable<String,String> accountsDatabase = new Hashtable<>();
+	private static Hashtable<String,Account> accountsDatabase = new Hashtable<>();
+	
 	private ArrayList<Event> associatedEvents = new ArrayList<>();
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		// TODO Auto-generated method stub
 		super.init(config);
-		Event eventOne = new Event(1, "Cowboy Hat Sale", "Hank", new Date());
-		Event eventTwo = new Event(2, "Whiskey Tasting", "Bobby", new Date());
-		Event eventThree = new Event(3, "Pure Country Music Show", "Dale R. Mercer", new Date());
+		Event eventOne = new Event(1, "Cowboy Hat Sale", "Hank", "11:00am","Fullerton, CA");
+		Event eventTwo = new Event(2, "Whiskey Tasting", "Bobby", "12:00pm","Los Angeles,CA");
+		Event eventThree = new Event(3, "Pure Country Music Show", "Dale R. Mercer", "4:00pm","Long Beach, CA");
 		
 		associatedEvents.add(eventOne);
 		associatedEvents.add(eventTwo);
@@ -47,9 +48,9 @@ public class LoginServlet extends HttpServlet {
 		Account accountTwo = new Account(2, "bob", "bobson@gmail.com", "test12",associatedEvents);
 		Account accountThree = new Account(3, "chang", "chang@gmail.com", "test12", associatedEvents);
 		
-		accountsDatabase.put(accountOne.getAccountName(), accountOne.getAccountPassword());
-		accountsDatabase.put(accountTwo.getAccountName(), accountTwo.getAccountPassword());
-		accountsDatabase.put(accountThree.getAccountName(), accountThree.getAccountPassword());
+		accountsDatabase.put(accountOne.getAccountName(), accountOne);
+		accountsDatabase.put(accountTwo.getAccountName(), accountTwo);
+		accountsDatabase.put(accountThree.getAccountName(), accountThree);
 	}
 
 	/**
@@ -126,7 +127,7 @@ public class LoginServlet extends HttpServlet {
 		
 		
 		
-		if(accountsDatabase.containsKey(username) == true && accountsDatabase.get(username).equals(password)){
+		if(accountsDatabase.containsKey(username) == true && accountsDatabase.get(username).getAccountPassword().equals(password)){
 			authenticated = true;
 		}
 		
@@ -173,7 +174,7 @@ public class LoginServlet extends HttpServlet {
 		
 		ArrayList<Event> yourEvents = new ArrayList<>();
 		Account account = new Account(id, username, email, password, yourEvents);
-		accountsDatabase.put(account.getAccountName(), account.getAccountPassword());
+		accountsDatabase.put(account.getAccountName(), account);
 		
 		HttpSession newSession = request.getSession();
 		newSession.setAttribute("username", username);
@@ -194,6 +195,15 @@ public class LoginServlet extends HttpServlet {
         .forward(request, response);
 		
 	}
+	
+	public static Hashtable<String, Account> getAccountsDatabase() {
+		return accountsDatabase;
+	}
+
+	public static void setAccountsDatabase(Hashtable<String, Account> aAccountsDatabase) {
+		accountsDatabase = aAccountsDatabase;
+	}
+
 
 
 

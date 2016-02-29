@@ -3,6 +3,7 @@ package mycalendar.servlets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -11,7 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import mycalendar.model.Account;
 import mycalendar.model.Event;
+import mycalendar.servlets.*;
 
 public class EventServlet extends HttpServlet {
 	
@@ -21,15 +24,22 @@ public class EventServlet extends HttpServlet {
 	
 	private ArrayList<Event> eventsDatabase = new ArrayList<>();
 	
+	private ArrayList<Event> associatedEvents = new ArrayList<>();
+	
+	
+	// The problem is this accountsDatabse is coming empty
+	Hashtable<String,Account> accountsDatabase = LoginServlet.getAccountsDatabase();
+	
 	@Override
 	public void init(ServletConfig config) throws ServletException
 	{
 		super.init(config);
 				
-		Event eventOne = new Event(1, "Cowboy Hat Sale", "Hank", new Date());
-		Event eventTwo = new Event(2, "Whiskey Tasting", "Bobby", new Date());
-		Event eventThree = new Event(3, "Pure Country Music Show", "Dale R. Mercer", new Date());
+		Event eventOne = new Event(1, "Cowboy Hat Sale", "Hank", "11:00am","Fullerton, CA");
+		Event eventTwo = new Event(2, "Whiskey Tasting", "Bobby", "12:00pm","Los Angeles,CA");
+		Event eventThree = new Event(3, "Pure Country Music Show", "Dale R. Mercer", "4:00pm","Long Beach, CA");
 		
+	
 		//Add Dummy Data
 		eventsDatabase.add(eventOne);
 		eventsDatabase.add(eventTwo);
@@ -54,32 +64,88 @@ public class EventServlet extends HttpServlet {
 		
 		switch(action){
 			case "create": 
-				createEvent(request,response);
+				showCreateEventForm(request,response);
 				break;
-			
+				
 			case "yourEvents":
-				yourEvents(request,response);
+				showYourEvents(request,response);
 				break;
-			
+				
 			case "list":
 			default:
 				showListings(request, response);
 				break;
 		}
 	}
-
-	private void yourEvents(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		String action = request.getParameter("action");
+		
+		switch(action){
+			case "create":
+				createEvent(request,response);
+				break;
+			
+		}
+	}
+
+
+	private void createEvent(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		// TODO Auto-generated method stub
+		
+		HttpSession session = request.getSession(false);
+		
+		String username = (String) session.getAttribute("username");
+		String eventName = request.getParameter("eventName");
+		String eventTime = request.getParameter("eventTime");
+		String location = request.getParameter("eventLocation");
+		
+		int id;
+		synchronized(this){
+			id = this.EVENT_ID_SEQUENCE++;
+		}
+		
+	
+		Event newEvent = new Event(id , eventName, username, eventTime, location);
+		
+		eventsDatabase.add(newEvent);
+		
+		Account userAccount = accountsDatabase.get(username);
+		
+		associatedEvents = userAccount.getAssociatedEvents();
+		
+		associatedEvents.add(newEvent);
+		
+		response.sendRedirect("events");
+		
+	}
+
+	private void showYourEvents(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		
 		HttpSession session = request.getSession();
 		
 		if(session.getAttribute("username") != null)
 		{
+			String username = (String) session.getAttribute("username");
+			
+			if(accountsDatabase.size() == 0){
+				System.out.println("Account Database is empty!");
+			}
+			
+			Account userAccount = accountsDatabase.get(username);
+			
+			associatedEvents = userAccount.getAssociatedEvents();
+			
+			request.setAttribute("associatedEvents", this.associatedEvents);
+			
 			request.setAttribute("loggedIn", true);
 		}
 		request.getRequestDispatcher("/WEB-INF/yourevents.jsp").forward(request, response);
 	}
 
-	private void createEvent(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void showCreateEventForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		HttpSession session = request.getSession();
 		

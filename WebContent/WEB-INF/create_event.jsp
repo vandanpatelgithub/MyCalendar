@@ -16,5 +16,13 @@
             <c:param name='logout' value='true' />
          </c:url>">Logout</a><br /><br /> 
 <% } %>
+
+<form action="events" method="post">
+<input type="hidden" name="action" value="create">
+Event Name : <input type="text" name="eventName">
+Event Time : <input type="text" name="eventTime">
+Location : <input type="text" name="eventLocation">
+<input type="submit" value="events">
+</form>
 </body>
 </html>

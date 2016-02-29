@@ -21,10 +21,10 @@
 <p>You are viewing your events now !</p> <br> <br>
 <a href="<c:url value='/login'>
             <c:param name='logout' value='true' />
-         </c:url>">Logout</a><br /><br />
+         </c:url>">Logout</a>
 <a href="<c:url value='/events'>
             <c:param name='action' value='create' />
-         </c:url>">Create Event</a><br /><br />
+         </c:url>">Create Event</a>
 <a href="<c:url value='/events'>
             <c:param name='action' value='yourEvents' />
          </c:url>">Your Events</a><br /><br />
@@ -43,7 +43,8 @@ else
 		for(Event event: eventsDatabase){
 			String name = event.getEventName();
 			String creator = event.getEventCreater();
-			Date date = event.getEventTime();
+			String date = event.getEventTime();
+			String location = event.getLocation();
 			%>
 			<div class="row">
 				<div class="col-md-3">
@@ -54,6 +55,9 @@ else
 			    </div>
 			    <div class="col-md-3">
 				 <p>Time: <%= date %> </p>
+				 </div>
+				 <div class="col-md-3">
+				 <p>Location: <%= location %> </p>
 				 </div>
 			</div>
 		<% }
